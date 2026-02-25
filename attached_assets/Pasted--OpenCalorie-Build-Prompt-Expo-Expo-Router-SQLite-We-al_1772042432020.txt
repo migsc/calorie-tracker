@@ -1,0 +1,510 @@
+
+OpenCalorie — Build Prompt (Expo + Expo Router + SQLite)
+
+We already have a working React Native + Expo + TypeScript project using Expo Router. Build a simple, privacy-first calorie/macro/weight tracker app called OpenCalorie (name is not critical; can be changed later). It is inspired by a discontinued minimalist tracker (“Lightweight”) and must prioritize speed, clarity, and zero friction over advanced features.
+
+Core Principles (non-negotiable)
+
+Single primary screen (dashboard-style): user should be able to do almost everything from one place.
+
+Manual entry only (no barcode scanning, no food database).
+
+Privacy-first: no accounts, no cloud sync, no external APIs, no analytics. All data stored locally.
+
+Fast daily use: typical daily logging should take under 30 seconds.
+
+Designed for consistency, not perfection (avoid overengineering).
+
+Styling / UI:
+
+Clean typography, neutral palette.
+
+Use color intentionally (primarily red when exceeding calorie target).
+
+Avoid clutter, heavy shadows, overly complex components.
+
+Chart must be minimal (no heavy “dashboard chart UI”).
+
+
+
+
+---
+
+App UX & Navigation (Expo Router)
+
+Use Expo Router, but the UX should feel like one primary dashboard.
+
+Primary route: app/index.tsx (Dashboard)
+
+Secondary routes only if necessary (prefer modal/sheet UX launched from dashboard):
+
+app/settings.tsx (or Settings modal/sheet)
+
+app/backup.tsx (or Import/Export modal/sheet)
+
+
+
+No tabs unless absolutely required. If you add routes, keep them clearly secondary and do not detract from the single-screen dashboard experience.
+
+
+---
+
+Dashboard Screen (Single Primary Screen)
+
+The dashboard must include these sections (stacked, clean, scannable):
+
+A) Daily Calories (Top priority)
+
+Show Remaining calories in large text (primary focus).
+
+Show Goal and Consumed (smaller).
+
+Remaining = goal − sum(today’s intake calories).
+
+If Remaining < 0 → Remaining turns red.
+
+
+B) Quick Add Intake (Calories-first, macros optional)
+
+Users create “intake entries” (meals/snacks).
+
+Entry fields
+
+Required: calories (integer > 0)
+
+Optional: note (TEXT) — max 100 characters
+
+Optional macros (numbers ≥ 0):
+
+protein_g (grams)
+
+carbs_g (grams)
+
+fat_g (grams)
+
+sodium_mg (milligrams)
+
+
+
+Note Field (Food Journal / Reflection Tag)
+
+Each intake entry can include a short note (max 100 characters) intended for lightweight reflection:
+
+Examples: “Stress snack”, “Felt satisfied”, “Late-night boredom”, “Pre-workout fuel”.
+
+Requirements:
+
+Hard max: 100 characters
+
+Show a character counter in the UI
+
+Prevent overflow (disallow > 100)
+
+Notes optional
+
+Display note under calories in entry list row if present
+
+
+
+Macro Mode (Setting)
+
+Implement macro_mode with default = optional:
+
+off: only calories + note; macro UI hidden everywhere; macro summary hidden
+
+optional (DEFAULT): calories + note, with an “Add macros” expander (accordion/toggle) to reveal macro inputs
+
+on: macro inputs visible by default
+
+
+Entry list (today)
+
+Show today’s entries (most recent first).
+
+Each row shows:
+
+Calories
+
+Note (if present)
+
+
+Provide actions:
+
+Edit (tap row to edit or an explicit Edit action—choose the simplest UX)
+
+Delete
+
+
+Editing opens the same entry form (pre-filled).
+
+
+C) Macro Summary (only if macro_mode != off)
+
+Display daily totals for Protein / Carbs / Fat / Sodium.
+
+Totals are computed by summing macros across today’s entries (null treated as 0).
+
+Optional macro goals:
+
+Allow setting macro goals in Settings (protein_g, carbs_g, fat_g, sodium_mg).
+
+Display simple progress (e.g., “85g / 140g” or minimal progress bar).
+
+Keep it visually minimal.
+
+
+
+D) Weight Tracking + Mini Trend
+
+User logs weight once per day (editable).
+
+Show today’s weight (or “Add today’s weight”).
+
+Show either:
+
+A mini line chart preview inline on dashboard, OR
+
+A “View trend” button that opens a lightweight modal/view.
+
+
+
+Graph Requirements (strict)
+
+Clean and minimal:
+
+No gradients
+
+No heavy gridlines
+
+No big legends
+
+Minimal axis labeling (or none if still readable)
+
+Smooth, readable progression over time
+
+
+X-axis conceptually date, Y-axis weight
+
+Default range: last 30 days; allow 90 / All
+
+Use an off-the-shelf Expo-compatible chart library (do not implement a custom SVG chart from scratch). Choose a stable, widely-used option and keep configuration simple.
+
+
+
+---
+
+Units & Preferences (Settings)
+
+Settings must allow:
+
+Calories label: “Calories” ↔ “kcal” (label preference only; numeric values unchanged)
+
+Weight unit: lbs ↔ kg
+
+When switching weight unit: convert and persist all stored weights (not just a label flip)
+
+Update chart accordingly
+
+
+Macro Mode: off / optional / on (default optional)
+
+Default calorie goal: 2000
+
+
+Macro units are fixed:
+
+protein/carbs/fat in g
+
+sodium in mg
+
+
+
+---
+
+Data Storage (SQLite, local-only)
+
+All data stored locally on device. No login. No accounts. No external APIs. Data persists between sessions.
+
+Use Expo SQLite.
+
+Date keying
+
+Use local date keys: YYYY-MM-DD (device local time).
+
+Do not use UTC boundaries for “today”.
+
+
+Schema (recommended)
+
+Implement init + migrations.
+
+settings (single row)
+
+id (1)
+
+calorie_goal (default 2000)
+
+calorie_label ('calories' | 'kcal')
+
+weight_unit ('lb' | 'kg')
+
+macro_mode ('off' | 'optional' | 'on') default optional
+
+macro_goal_protein_g (nullable)
+
+macro_goal_carbs_g (nullable)
+
+macro_goal_fat_g (nullable)
+
+macro_goal_sodium_mg (nullable)
+
+timestamps
+
+
+intake_entries
+
+id (uuid)
+
+date (YYYY-MM-DD)
+
+calories (int)
+
+protein_g (nullable)
+
+carbs_g (nullable)
+
+fat_g (nullable)
+
+sodium_mg (nullable)
+
+note (nullable, UI-enforced max 100 chars)
+
+created_at, updated_at
+
+index on date
+
+
+weight_entries
+
+date (YYYY-MM-DD primary key)
+
+weight (real)
+
+created_at, updated_at
+
+
+Derived values:
+
+Daily calories consumed = SUM(calories WHERE date = today)
+
+Daily macros totals = SUM(each macro column WHERE date = today)
+
+
+
+---
+
+Backup (Import / Export) — ONE FILE ONLY (Required)
+
+We need backup for:
+
+1. testing and iteration
+
+
+2. user safeguarding data
+
+
+
+UX requirement
+
+Users must export/import one file. No multi-file exports.
+
+Export: One-file backup
+
+Implement Export Backup that creates exactly ONE file and shares it via system share sheet.
+
+Preferred format:
+
+A single compressed JSON backup file, e.g. OpenCalorie.backup.json.gz (or similar), OR
+
+A single .zip containing a JSON and/or CSV inside (but user still sees only one file).
+
+
+Choose whichever is most reliable in Expo RN and document it in README.
+
+Backup contents (must include all)
+
+settings
+
+all intake entries
+
+all weight entries
+
+schema version + created timestamp
+
+app version (if available)
+
+optionally a checksum/hash (nice-to-have)
+
+
+Export requirements
+
+Must be deterministic and robust.
+
+If you choose compression:
+
+Use a reliable Expo/RN-friendly library for gzip/zip and document it.
+
+
+File name should include date/time, e.g. OpenCalorie_YYYY-MM-DD.backup.json.gz.
+
+
+Import: One-file restore (kill-and-fill)
+
+Implement Import Backup that accepts exactly ONE file.
+
+Import must be kill-and-fill:
+
+1. Confirm strongly (warn that this will overwrite local data)
+
+
+2. Clear all existing local data (delete rows / reset DB)
+
+
+3. Restore from the backup file
+
+
+4. Recompute any derived UI from DB state
+
+
+
+Import validation
+
+Validate backup structure before wiping data:
+
+required keys exist
+
+schema version compatible
+
+entries have valid dates and numeric values
+
+note length <= 100 (truncate or reject with message—prefer reject with error message)
+
+
+If validation fails, do NOT wipe user data.
+
+
+CSV compatibility requirement (without multiple files)
+
+We still want CSV interoperability, but users will not import multiple files.
+
+Pick ONE of these approaches (choose the simplest reliable one and document it):
+
+Option A (recommended): JSON backup is canonical.
+
+Export one compressed JSON file (primary).
+
+Include an additional “Export as single CSV” option that exports ONE CSV file where each row has a record_type column:
+
+record_type = settings | intake | weight
+
+For settings: store as a single row with columns for each setting
+
+For intake: full intake columns
+
+For weight: full weight columns
+
+
+Import: allow importing the one CSV file (kill-and-fill) by reading record_type rows.
+
+
+Option B: ZIP as canonical.
+
+Export one .zip that contains:
+
+backup.json
+
+backup.csv (optional)
+
+
+Import reads the zip and restores (kill-and-fill).
+
+
+Regardless, the user only selects/imports/exports one file.
+
+
+---
+
+Implementation Requirements
+
+TypeScript everywhere.
+
+Keep SQL out of UI components: create a db/ module with clean functions.
+
+Folder structure:
+
+db/ (init, migrations, query functions)
+
+components/ (UI components)
+
+utils/ (dates, conversions, totals, backup helpers)
+
+types/
+
+
+Add a few unit tests for pure logic:
+
+date keying
+
+lb/kg conversion
+
+totals calculations
+
+backup validation (at least one test)
+
+
+README must include:
+
+run instructions
+
+schema overview
+
+backup format(s) and examples
+
+restore behavior (kill-and-fill)
+
+known limitations
+
+
+
+
+---
+
+Guardrails (prevent overengineering)
+
+No authentication
+
+No food DB
+
+No scanning
+
+No cloud sync
+
+No AI features or “smart suggestions”
+
+No heavy chart UI
+
+Keep it minimal and fast
+
+
+
+---
+
+Optional decisions (choose simplest defaults if unclear)
+
+Prefer tap row to edit intake entry (simple).
+
+Prefer mini trend chart inline only if it stays clean; otherwise “View trend” modal.
+
+
+
+---
