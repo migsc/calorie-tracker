@@ -46,7 +46,7 @@ export function BackupModal({ visible, onClose }: Props) {
       const fileUri = FileSystem.cacheDirectory + filename;
 
       await FileSystem.writeAsStringAsync(fileUri, json, {
-        encoding: FileSystem.EncodingType.UTF8,
+        encoding: 'utf8',
       });
 
       const canShare = await Sharing.isAvailableAsync();
@@ -80,7 +80,7 @@ export function BackupModal({ visible, onClose }: Props) {
 
       const fileUri = result.assets[0].uri;
       const raw = await FileSystem.readAsStringAsync(fileUri, {
-        encoding: FileSystem.EncodingType.UTF8,
+        encoding: 'utf8',
       });
 
       let parsed: unknown;
