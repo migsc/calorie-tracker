@@ -1,18 +1,17 @@
 import React, { useState, useCallback } from 'react';
 import {
-  View, Text, StyleSheet, Pressable, useColorScheme,
+  View, Text, StyleSheet, Pressable,
   TextInput, Alert, Modal, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import Colors from '@/constants/colors';
 import { useApp } from '@/context/AppContext';
+import { useTheme } from '@/context/ThemeContext';
 import { parseWeight, formatWeight } from '@/utils/conversions';
 import { WeightChartModal } from './WeightChartModal';
 
 export function WeightSection() {
-  const colorScheme = useColorScheme();
-  const theme = Colors[colorScheme === 'dark' ? 'dark' : 'light'];
+  const { theme } = useTheme();
   const { todayWeight, logWeight, settings } = useApp();
 
   const unit = settings?.weight_unit ?? 'lb';

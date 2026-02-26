@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, Pressable, useColorScheme,
+  View, Text, StyleSheet, Pressable,
   Modal, ScrollView, TextInput, Switch, Alert, Platform,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Colors from '@/constants/colors';
 import { useApp } from '@/context/AppContext';
+import { useTheme } from '@/context/ThemeContext';
 import { lbToKg, kgToLb } from '@/utils/conversions';
 import { getAllWeightEntries, updateAllWeightEntries } from '@/db/queries';
 import type { MacroMode, CalorieLabel, WeightUnit } from '@/types';
@@ -80,8 +80,7 @@ function SegmentControl<T extends string>({
 }
 
 export function SettingsModal({ visible, onClose }: Props) {
-  const colorScheme = useColorScheme();
-  const theme = Colors[colorScheme === 'dark' ? 'dark' : 'light'];
+  const { theme } = useTheme();
   const insets = useSafeAreaInsets();
   const { settings, updateSettings, refresh } = useApp();
 

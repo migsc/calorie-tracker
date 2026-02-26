@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import {
   View, Text, TextInput, StyleSheet, Pressable,
-  useColorScheme, Modal, ScrollView, Keyboard, Platform,
+  Modal, ScrollView, Keyboard, Platform,
   KeyboardAvoidingView, Alert,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
@@ -9,6 +9,7 @@ import * as Crypto from 'expo-crypto';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import { useApp } from '@/context/AppContext';
+import { useTheme } from '@/context/ThemeContext';
 import type { IntakeEntry } from '@/types';
 
 interface Props {
@@ -56,8 +57,7 @@ function InputField({
 }
 
 export function IntakeForm({ visible, onClose, editingEntry }: Props) {
-  const colorScheme = useColorScheme();
-  const theme = Colors[colorScheme === 'dark' ? 'dark' : 'light'];
+  const { theme } = useTheme();
   const { settings, todayKey, addEntry, editEntry } = useApp();
 
   const macroMode = settings?.macro_mode ?? 'optional';

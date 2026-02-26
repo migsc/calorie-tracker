@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import {
-  View, Text, StyleSheet, Pressable, useColorScheme,
+  View, Text, StyleSheet, Pressable,
   FlatList, Alert,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import Colors from '@/constants/colors';
 import { useApp } from '@/context/AppContext';
+import { useTheme } from '@/context/ThemeContext';
 import type { IntakeEntry } from '@/types';
 
 interface Props {
@@ -64,8 +64,7 @@ function EntryRow({
 }
 
 export function IntakeList({ onEditEntry }: Props) {
-  const colorScheme = useColorScheme();
-  const theme = Colors[colorScheme === 'dark' ? 'dark' : 'light'];
+  const { theme } = useTheme();
   const { entries, removeEntry, settings } = useApp();
 
   const label = settings?.calorie_label === 'kcal' ? 'kcal' : 'cal';

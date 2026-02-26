@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, Pressable, useColorScheme,
+  View, Text, StyleSheet, Pressable,
   Modal, ScrollView, Dimensions, Platform,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { LineChart } from 'react-native-chart-kit';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Colors from '@/constants/colors';
+import { useTheme } from '@/context/ThemeContext';
 import { getAllWeightEntries, getRecentWeightEntries } from '@/db/queries';
 import type { WeightEntry } from '@/types';
 import { shortDateLabel } from '@/utils/dates';
@@ -19,10 +19,8 @@ interface Props {
 }
 
 export function WeightChartModal({ visible, onClose }: Props) {
-  const colorScheme = useColorScheme();
-  const theme = Colors[colorScheme === 'dark' ? 'dark' : 'light'];
+  const { theme, isDark } = useTheme();
   const insets = useSafeAreaInsets();
-  const isDark = colorScheme === 'dark';
 
   const [range, setRange] = useState<Range>(30);
   const [entries, setEntries] = useState<WeightEntry[]>([]);

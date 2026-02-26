@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, useColorScheme } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import Colors from '@/constants/colors';
 import { useApp } from '@/context/AppContext';
+import { useTheme } from '@/context/ThemeContext';
 
 interface MacroBarProps {
   label: string;
@@ -49,8 +49,7 @@ function MacroBar({ label, value, goal, unit, theme, color }: MacroBarProps) {
 }
 
 export function MacroSummary() {
-  const colorScheme = useColorScheme();
-  const theme = Colors[colorScheme === 'dark' ? 'dark' : 'light'];
+  const { theme } = useTheme();
   const { dailyMacros, settings } = useApp();
 
   if (!settings || settings.macro_mode === 'off') return null;

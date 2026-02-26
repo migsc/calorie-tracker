@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  View, Text, StyleSheet, Pressable, useColorScheme,
+  View, Text, StyleSheet, Pressable,
   Modal, ScrollView, Alert, Platform, ActivityIndicator,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
@@ -9,8 +9,8 @@ import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import * as DocumentPicker from 'expo-document-picker';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Colors from '@/constants/colors';
 import { useApp } from '@/context/AppContext';
+import { useTheme } from '@/context/ThemeContext';
 import { getSettings, getAllIntakeEntries, getAllWeightEntries, restoreFromBackup } from '@/db/queries';
 import { createBackupData, validateBackupData, serializeBackup } from '@/utils/backup';
 import { getTimestampForFilename } from '@/utils/dates';
@@ -21,8 +21,7 @@ interface Props {
 }
 
 export function BackupModal({ visible, onClose }: Props) {
-  const colorScheme = useColorScheme();
-  const theme = Colors[colorScheme === 'dark' ? 'dark' : 'light'];
+  const { theme } = useTheme();
   const insets = useSafeAreaInsets();
   const { refresh } = useApp();
 

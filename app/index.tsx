@@ -1,13 +1,13 @@
 import React, { useState, useCallback } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, Pressable,
-  useColorScheme, Platform, RefreshControl,
+  Platform, RefreshControl,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import Colors from '@/constants/colors';
 import { useApp } from '@/context/AppContext';
+import { useTheme } from '@/context/ThemeContext';
 import { CalorieDisplay } from '@/components/CalorieDisplay';
 import { IntakeList } from '@/components/IntakeList';
 import { IntakeForm } from '@/components/IntakeForm';
@@ -19,8 +19,7 @@ import type { IntakeEntry } from '@/types';
 import { getTodayKey, formatDateKey } from '@/utils/dates';
 
 export default function Dashboard() {
-  const colorScheme = useColorScheme();
-  const theme = Colors[colorScheme === 'dark' ? 'dark' : 'light'];
+  const { theme, isDark, toggle: toggleTheme } = useTheme();
   const insets = useSafeAreaInsets();
   const { refresh, isLoading, settings } = useApp();
 
@@ -75,6 +74,16 @@ export default function Dashboard() {
         </View>
         <View style={styles.headerActions}>
           <Pressable
+            onPress={async () => {
+              await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              toggleTheme();
+            }}
+            hitSlop={10}
+            style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+          >
+            <Feather name={isDark ? 'sun' : 'moon'} size={20} color={theme.textSecondary} />
+          </Pressable>
+          <Pressable
             onPress={() => setBackupVisible(true)}
             hitSlop={10}
             style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
@@ -128,7 +137,7 @@ export default function Dashboard() {
             { transform: [{ scale: pressed ? 0.94 : 1 }] },
           ]}
         >
-          <Feather name="plus" size={26} color={colorScheme === 'dark' ? '#1a1a1a' : '#fff'} />
+          <Feather name="plus" size={26} color={isDark ? '#1a1a1a' : '#fff'} />
         </Pressable>
       </View>
 
