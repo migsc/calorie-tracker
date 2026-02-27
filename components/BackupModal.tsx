@@ -41,7 +41,7 @@ export function BackupModal({ visible, onClose }: Props) {
       const json = serializeBackup(backup);
 
       const timestamp = getTimestampForFilename();
-      const filename = `OpenCalorie_${timestamp}.backup.json`;
+      const filename = `DumbCalorie_${timestamp}.backup.json`;
       const fileUri = FileSystem.cacheDirectory + filename;
 
       await FileSystem.writeAsStringAsync(fileUri, json, {
@@ -56,7 +56,7 @@ export function BackupModal({ visible, onClose }: Props) {
 
       await Sharing.shareAsync(fileUri, {
         mimeType: 'application/json',
-        dialogTitle: 'Save OpenCalorie Backup',
+        dialogTitle: 'Save Dumb Calorie Backup',
       });
     } catch (err) {
       console.error('Export failed:', err);

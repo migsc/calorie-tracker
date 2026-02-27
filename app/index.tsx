@@ -69,7 +69,7 @@ export default function Dashboard() {
         ]}
       >
         <View>
-          <Text style={[styles.appName, { color: theme.text }]}>OpenCalorie</Text>
+          <Text style={[styles.appName, { color: theme.text }]}>Dumb Calorie</Text>
           <Text style={[styles.dateLabel, { color: theme.textMuted }]}>{todayLabel}</Text>
         </View>
         <View style={styles.headerActions}>
