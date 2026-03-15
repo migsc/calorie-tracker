@@ -111,7 +111,6 @@ export function IntakeForm({ visible, onClose, editingEntry }: Props) {
     }
 
     setSaving(true);
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
     try {
       const updates = {
@@ -130,6 +129,7 @@ export function IntakeForm({ visible, onClose, editingEntry }: Props) {
         await addEntry({ id, date: todayKey, ...updates });
       }
 
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       onClose();
     } catch (err) {
       Alert.alert('Error', 'Failed to save entry. Please try again.');

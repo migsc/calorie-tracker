@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Platform } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withTiming, Easing } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming, withSpring, withSequence, Easing } from 'react-native-reanimated';
 import { useApp } from '@/context/AppContext';
 import { useTheme } from '@/context/ThemeContext';
 
@@ -15,6 +15,8 @@ export function CalorieDisplay() {
 
   const progress = Math.min(dailyCalories / goal, 1);
   const progressValue = useSharedValue(0);
+  const scaleValue = useSharedValue(1);
+  const prevCalories = React.useRef(0);
 
   React.useEffect(() => {
     progressValue.value = withTiming(progress, {
@@ -23,24 +25,40 @@ export function CalorieDisplay() {
     });
   }, [progress]);
 
+  React.useEffect(() => {
+    if (dailyCalories > 0 && dailyCalories !== prevCalories.current) {
+      scaleValue.value = withSequence(
+        withSpring(1.06, { damping: 4, stiffness: 300 }),
+        withSpring(1, { damping: 12, stiffness: 200 }),
+      );
+    }
+    prevCalories.current = dailyCalories;
+  }, [dailyCalories]);
+
   const barStyle = useAnimatedStyle(() => ({
     width: `${progressValue.value * 100}%`,
+  }));
+
+  const numberStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scaleValue.value }],
   }));
 
   return (
     <View style={[styles.container, { backgroundColor: theme.surface }]}>
       <View style={styles.row}>
         <View style={styles.mainNumber}>
-          <Text
-            style={[
-              styles.remainingValue,
-              { color: isOver ? theme.red : theme.text },
-            ]}
-            numberOfLines={1}
-            adjustsFontSizeToFit
-          >
-            {Math.abs(remaining).toLocaleString()}
-          </Text>
+          <Animated.View style={numberStyle}>
+            <Text
+              style={[
+                styles.remainingValue,
+                { color: isOver ? theme.red : theme.text },
+              ]}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+            >
+              {Math.abs(remaining).toLocaleString()}
+            </Text>
+          </Animated.View>
           <Text style={[styles.remainingLabel, { color: theme.textSecondary }]}>
             {isOver ? `over` : `remaining`}
           </Text>
@@ -80,9 +98,9 @@ export function CalorieDisplay() {
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 16,
-    padding: 20,
-    gap: 16,
+    borderRadius: 20,
+    padding: 24,
+    gap: 20,
   },
   row: {
     flexDirection: 'row',
@@ -93,11 +111,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   remainingValue: {
-    fontSize: 56,
+    fontSize: 68,
     fontWeight: '700',
-    letterSpacing: -2,
+    letterSpacing: -3,
     fontFamily: 'DMSans_700Bold',
-    lineHeight: 60,
+    lineHeight: 72,
   },
   remainingLabel: {
     fontSize: 14,
@@ -130,13 +148,13 @@ const styles = StyleSheet.create({
     height: 1,
   },
   barTrack: {
-    height: 4,
-    borderRadius: 2,
+    height: 5,
+    borderRadius: 3,
     overflow: 'hidden',
   },
   barFill: {
     height: '100%',
-    borderRadius: 2,
+    borderRadius: 3,
   },
   unitLabel: {
     fontSize: 11,

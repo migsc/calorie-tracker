@@ -20,7 +20,7 @@ const STORAGE_KEY = '@opencalorie_theme';
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const systemScheme = useColorScheme() ?? 'light';
-  const [preference, setPreferenceState] = useState<ThemePreference>('system');
+  const [preference, setPreferenceState] = useState<ThemePreference>('light');
 
   useEffect(() => {
     AsyncStorage.getItem(STORAGE_KEY).then((val) => {
@@ -36,11 +36,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const toggle = useCallback(() => {
-    setPreference((prev) => {
-      const resolved = prev === 'system' ? systemScheme : prev;
-      return resolved === 'dark' ? 'light' : 'dark';
-    });
-  }, [systemScheme, setPreference]);
+    const resolved = preference === 'system' ? systemScheme : preference;
+    setPreference(resolved === 'dark' ? 'light' : 'dark');
+  }, [preference, systemScheme, setPreference]);
 
   const colorScheme: 'light' | 'dark' =
     preference === 'system' ? systemScheme : preference;

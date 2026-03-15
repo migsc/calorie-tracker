@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, Pressable,
-  FlatList, Alert,
+  Alert,
 } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Feather } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useApp } from '@/context/AppContext';
@@ -102,7 +103,7 @@ export function IntakeList({ onEditEntry }: Props) {
     <View style={[styles.container, { backgroundColor: theme.surface }]}>
       <Text style={[styles.sectionLabel, { color: theme.textMuted }]}>Today's Entries</Text>
       {entries.map((entry, index) => (
-        <View key={entry.id}>
+        <Animated.View key={entry.id} entering={FadeInDown.duration(280).springify()}>
           <EntryRow
             entry={entry}
             onEdit={() => onEditEntry(entry)}
@@ -112,7 +113,7 @@ export function IntakeList({ onEditEntry }: Props) {
           {index < entries.length - 1 && (
             <View style={[styles.divider, { backgroundColor: theme.border }]} />
           )}
-        </View>
+        </Animated.View>
       ))}
     </View>
   );
@@ -120,7 +121,7 @@ export function IntakeList({ onEditEntry }: Props) {
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 16,
+    borderRadius: 20,
     overflow: 'hidden',
     paddingVertical: 4,
   },
@@ -137,7 +138,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 15,
     gap: 12,
   },
   rowLeft: {
